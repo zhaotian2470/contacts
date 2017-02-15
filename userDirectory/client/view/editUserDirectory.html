@@ -1,0 +1,66 @@
+<table class="table table-bordered">
+  <thead class="thead-inverse">
+    <tr>
+      <th class="col-md-2">name</th>
+      <th class="col-md-2">birthday</th>
+      <th class="col-md-2">birthday type</th>
+      <th class="col-md-2">edit</th>
+      <th class="col-md-2">delete</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr ng-repeat="directory in ctrl.userDirectories">
+      <td class="col-md-2">{{directory.name}}</td>
+      <td class="col-md-2">{{directory.birthday | date:"yyyy-MM-dd H:m:s":"+00"}}</td>
+      <td class="col-md-2">{{directory.birthdayType}}</td>
+      <td class="col-md-2"><button ng-click="ctrl.showEditUserDirectory(directory)">edit</button></td>
+      <td class="col-md-2"><button ng-click="ctrl.deleteUserDirectory(directory)">delete</button></td>
+    </tr>
+  </tbody>
+</table>
+
+<button ng-click="ctrl.showAddUserDirectory()">add</button>
+
+<br>
+<hr>
+<br>
+
+<form ng-show="ctrl.status=='add'" ng-submit="ctrl.addUserDirectory()">
+  <fieldset class="form-group">
+    <label class="col-md-2">name</label>
+    <input type="text" class="col-md-2" ng-model="ctrl.addItem.name" ng-required="true"/>
+  </fieldset>
+  <fieldset class="form-group">
+    <label class="col-md-2">birthday</label>
+    <input type="date" class="col-md-2" ng-model="ctrl.addItem.birthday" ng-required="true"/>
+  </fieldset>
+  <fieldset class="form-group">
+    <label class="col-md-2">birthday type</label>
+    <select class="col-md-2" ng-model="ctrl.addItem.birthdayType">
+      <option value="阳历">阳历</option>
+      <option value="阴历">阴历</option>
+    </select>
+  </fieldset>
+  <button type="submit" class="btn btn-primary">submit</button>
+  <button type="button" class="btn btn-primary" ng-click="ctrl.cancelAddUserDirectory()">cancel</button>
+</form>
+
+<form ng-show="ctrl.status=='edit'" ng-submit="ctrl.editUserDirectory()">
+  <fieldset class="form-group">
+    <label class="col-md-2">name</label>
+    <input type="text" class="col-md-2" ng-model="ctrl.editItem.name" ng-required="true"/>
+  </fieldset>
+  <fieldset class="form-group">
+    <label class="col-md-2">birthday</label>
+    <input type="date" class="col-md-2" ng-model="ctrl.editItem.birthday" ng-required="true"/>
+  </fieldset>
+  <fieldset class="form-group">
+    <label class="col-md-2">birthday type</label>
+    <select class="col-md-2" ng-model="ctrl.editItem.birthdayType">
+      <option value="阳历">阳历</option>
+      <option value="阴历">阴历</option>
+    </select>
+  </fieldset>
+  <button type="submit" class="btn btn-primary">submit</button>
+  <button type="button" class="btn btn-primary" ng-click="ctrl.cancelEditUserDirectory()">cancel</button>
+</form>

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <link rel="stylesheet" href="/public/bower_components/bootstrap/dist/css/bootstrap.css">
+    <style>
+      input.ng-valid {
+        background-color: SpringGreen;
+      }
+      input.ng-invalid {
+        background-color: PaleVioletRed;
+      }
+    </style>
+    <script src="/public/bower_components/lodash/lodash.js"></script>
+    <script src="/public/bower_components/jquery/dist/jquery.js"></script>
+    <script src="/public/bower_components/tether/dist/js/tether.js"></script>
+    <script src="/public/bower_components/bootstrap/dist/js/bootstrap.js"></script>
+    <script src="/public/bower_components/angular/angular.js"></script>
+    <script src="controller.js"></script>
+  </head>
+
+  <body ng-app="userDirectory">
+    Choose:
+    <a href="about.html">about</a> |
+    <br>
+    <hr>
+    
+    <div class="container" ng-controller="MainCtrl as ctrl">
+      <div ng-include="ctrl.url"></div>
+    </div>
+
+    <br>
+    <hr>
+    copyright
+  </body>
+</html>

@@ -1,0 +1,14 @@
+{
+  "listenPort": 80,
+
+  "publicRoot": "public",
+
+  "mainLogName": "contacts",
+  "mainLogLevel": "debug",
+  "mainLogSrc": false,
+
+  "dbConfig": {
+    "host": "localhost",
+    "dbName": "contacts"
+  }
+}
