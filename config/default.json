@@ -1,5 +1,5 @@
 {
-  "listenPort": 80,
+  "listenPort": 3000,
 
   "publicRoot": "public",
 
