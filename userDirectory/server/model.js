@@ -18,6 +18,11 @@ var UserDirectorySchema = new Schema({
     validate: /^阴历$|^阳历$/,
     required: 'Please fill user directory birthdayType',
     trim: true
+  },
+  ownerId: {
+    type: Schema.Types.ObjectId,
+    ref: 'Users',
+    required: 'Please fill users'
   }
 });
 

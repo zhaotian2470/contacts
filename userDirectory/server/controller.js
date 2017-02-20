@@ -14,7 +14,9 @@ var UserDirectory = mongoose.model("UserDirectory");
  * Create user directory
  */
 module.exports.createUserDirectory = function(req, res) {
-  var userDirectory = new UserDirectory(req.body);
+  var record = _.cloneDeep(req.body);
+  _.assign(record, {"ownerId": req.user._id});
+  var userDirectory = new UserDirectory(record);
   userDirectory.save(function(error) {
     if (error) {
       httpUtil.sendErrorRes(res, 400, error.toString());
@@ -28,7 +30,7 @@ module.exports.createUserDirectory = function(req, res) {
  * Read all user directory
  */
 module.exports.readAllUserDirectory = function(req, res) {
-  UserDirectory.find({}, "_id name birthday birthdayType", function(error, items) {
+  UserDirectory.find({"ownerId": req.user._id}, "_id name birthday birthdayType", function(error, items) {
     if (error) {
       httpUtil.sendErrorRes(res, 400, error.toString());
     } else {
@@ -48,7 +50,7 @@ module.exports.readUserDirectoryById = function(req, res) {
  * Update user directory
  */
 module.exports.updateUserDirectory = function(req, res) {
-  _.extend(req.userDirectory, req.body);
+  _.assignIn(req.userDirectory, req.body);
   req.userDirectory.save(function(error) {
     if (error) {
       httpUtil.sendErrorRes(res, 400, error.toString());
@@ -86,6 +88,8 @@ module.exports.userDirectoryByID = function(req, res, next, id) {
       return httpUtil.sendErrorRes(res, 400, util.format("find user directory by id (%s) error: %s", id, error));
     } else if (!userDirectory) {
       return httpUtil.sendErrorRes(res, 404, util.format("No user directory with id: %s", id));
+    } else if(userDirectory.ownerId.toString() !== req.user._id.toString()) {
+      return httpUtil.sendErrorRes(res, 404, util.format("No user directory with id %s and owner id %s", id, req.user._id));
     }
     req.userDirectory = userDirectory;
     next();
