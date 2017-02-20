@@ -1,0 +1,12 @@
+<form ng-submit="ctrl.login()">
+  <fieldset class="form-group">
+    <label class="col-md-2">Username</label>
+    <input type="text" class="col-md-2" ng-model="ctrl.loginInfo.username" ng-required="true"/>
+  </fieldset>
+  <fieldset class="form-group">
+    <label class="col-md-2">Password</label>
+    <input type="password" class="col-md-2" ng-model="ctrl.loginInfo.password" ng-required="true"/>
+  </fieldset>
+  <button type="submit" class="btn btn-primary">login</button>
+  <button type="button" class="btn btn-primary" ng-click="ctrl.gotoRegister()">register</button>
+</form>
