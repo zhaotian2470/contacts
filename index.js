@@ -9,6 +9,7 @@ const express = require('express'),
       cookieParser = require('cookie-parser'),
       bodyParser = require('body-parser'),
       expressSession = require('express-session'),
+      mongoStore = require('connect-mongo')(expressSession),
       passport = require('passport'),
       flash = require('connect-flash'),
       morgan = require('morgan'),
@@ -22,6 +23,9 @@ const express = require('express'),
       userDirectoryRoutes = require('./userDirectory/server/routes'),
       userDirectoryClient = require('./userDirectory/client/routes');
 
+const mongoUrl = util.format("mongodb://%s/%s",
+			     commonUtil.config.get("dbConfig.host"),
+			     commonUtil.config.get("dbConfig.dbName"));
 
 // setup app
 var app = express();
@@ -32,7 +36,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
   extended: true
 }));
-app.use(expressSession({ secret: 'tian', resave: true, saveUninitialized: false}));
+app.use(expressSession({secret: 'tian', resave: true, saveUninitialized: false, store: new mongoStore({url: mongoUrl})}));
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(flash());
@@ -62,16 +66,13 @@ app.use("/userDirectory", function(req, res, next) {
 app.use("/userDirectory/api", userDirectoryRoutes);
 app.use("/userDirectory/view", userDirectoryClient);
 
-// connect mangodb and listen http port
-const mangoUrl = util.format("mongodb://%s/%s",
-			     commonUtil.config.get("dbConfig.host"),
-			     commonUtil.config.get("dbConfig.dbName"));
+// connect mongodb and listen http port
 var listenPort = commonUtil.config.get("listenPort");
 var logger = commonUtil.logger;
 
-mongoose.connect(mangoUrl, function(mongoError) {
+mongoose.connect(mongoUrl, function(mongoError) {
   if(mongoError) {
-    logger.error("failed to connect to %s: %j", mangoUrl, mongoError);
+    logger.error("failed to connect to %s: %j", mongoUrl, mongoError);
     return;
   }
 
