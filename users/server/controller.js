@@ -69,6 +69,16 @@ module.exports.login = function(req, res, next) {
 };
 
 /**
+ * logout
+ */
+module.exports.logout = function(req, res, next) {
+
+  req.logout();
+  res.redirect('/users/view/index.html');
+
+};
+
+/**
  * Create user
  */
 module.exports.createUser = function(req, res) {
