@@ -31,7 +31,7 @@ angular.module('users', [])
 
     self.gotoRegister = function() {
       self.url = "register.html";
-    }
+    };
 
     self.register = function() {
       usersService.register(self.registerInfo)

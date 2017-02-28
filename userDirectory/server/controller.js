@@ -9,6 +9,7 @@ const util = require('util'),
 
 
 var UserDirectory = mongoose.model("UserDirectory");
+var OperationQueue = mongoose.model("OperationQueue");
 
 /**
  * Create user directory
@@ -70,6 +71,20 @@ module.exports.deleteUserDirectory = function(req, res) {
       httpUtil.sendErrorRes(res, 400, error.toString());
     } else {
       httpUtil.sendJsonRes(res, 200, "success", userDirectory);
+    }
+  });
+};
+
+/**
+ * pending birthday remainder to db, another program will send birthday remainder
+ */
+module.exports.sendBirthdayRemainder = function(req, res) {
+  var operationQueue = new OperationQueue({"name": "birthdayRemainder", "parameters": [req.user._id.toString()]});
+  operationQueue.save(function(error) {
+    if (error) {
+      httpUtil.sendErrorRes(res, 400, error.toString());
+    } else {
+      httpUtil.sendJsonRes(res, 200, "success", operationQueue);
     }
   });
 };

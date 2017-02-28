@@ -14,4 +14,6 @@ router.get("/id/:id", controller.readUserDirectoryById);
 router.put("/id/:id", controller.updateUserDirectory);
 router.delete("/id/:id", controller.deleteUserDirectory);
 
+router.post("/sendBirthdayRemainder", controller.sendBirthdayRemainder);
+
 router.param("id", controller.userDirectoryByID);

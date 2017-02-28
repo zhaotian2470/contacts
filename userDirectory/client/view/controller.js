@@ -91,6 +91,17 @@ angular.module('userDirectory', [])
         });
     };
 
+    self.sendBirthdayRemainder = function() {
+      userDirectoryService.sendBirthdayRemainder()
+        .then(function(result) {
+          self.getAllUserDirectory();
+          console.log("success to send birthday remainder");
+        })
+        .catch(function(error) {
+          console.error("error to send birthday remainder");
+        });
+    };
+
     self.getAllUserDirectory();
 
   }])
@@ -186,6 +197,28 @@ angular.module('userDirectory', [])
           })
           .catch(function(error) {
             var errorInfo = "http error when delete user directory";
+            console.error(errorInfo);
+            return $q.reject(errorInfo);
+          });
+      },
+
+      sendBirthdayRemainder: function() {
+        var url = "/userDirectory/api/sendBirthdayRemainder";
+        return $http.post(url)
+          .then(function(response) {
+            console.log("get response from post %s", url);
+            console.log(response);
+            if(response.data.code === 200) {
+              return response.data.res;
+            }
+            else {
+              var errorInfo = "status error when send birthday remainder";
+              console.error(errorInfo);
+              return $q.reject(errorInfo);
+            }
+          })
+          .catch(function(error) {
+            var errorInfo = "http error when send birthday remainder";
             console.error(errorInfo);
             return $q.reject(errorInfo);
           });

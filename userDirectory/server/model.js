@@ -27,3 +27,17 @@ var UserDirectorySchema = new Schema({
 });
 
 exports.UserDirectory = mongoose.model('UserDirectory', UserDirectorySchema);
+
+var OperationQueueSchema = new Schema({
+  name: {
+    type: String,
+    required: 'Please fill operation name',
+    trim: true
+  },
+  parameters: {
+    type: [String],
+    required: 'Please fill operation parameters'
+  }
+});
+
+exports.OperationQueue = mongoose.model('OperationQueue', OperationQueueSchema);
