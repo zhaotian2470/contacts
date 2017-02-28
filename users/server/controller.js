@@ -86,8 +86,37 @@ module.exports.createUser = function(req, res) {
   users.save(function(error) {
     if (error) {
       return httpUtil.sendErrorRes(res, 400, error.toString());
-    } else {
+    }
+    else {
       return httpUtil.sendJsonRes(res, 200, "success", users);
+    }
+  });
+};
+
+/**
+ * get profile
+ */
+module.exports.getProfile = function(req, res, next) {
+
+  if(!req.user) {
+    return httpUtil.sendErrorRes(res, 400, 'Please login first');
+  }
+  else {
+    return httpUtil.sendJsonRes(res, 200, "success", req.user);
+  }
+};
+
+/**
+ * save profile
+ */
+module.exports.saveProfile = function(req, res, next) {
+
+  Users.update({"_id": req.body._id}, req.body, {"runValidators": true}, function(error, numAffected) {
+    if (error) {
+      return httpUtil.sendErrorRes(res, 400, error.toString());
+    }
+    else {
+      return httpUtil.sendJsonRes(res, 200, "success", req.body);
     }
   });
 };
