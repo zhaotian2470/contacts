@@ -55,7 +55,7 @@ module.exports.login = function(req, res, next) {
     }
 
     if (!user) {
-      return httpUtil.sendErrorRes(res, 400, "no user found");
+      return httpUtil.sendErrorRes(res, 400, info.message.toString());
     }
 
     req.login(user, function(error) {

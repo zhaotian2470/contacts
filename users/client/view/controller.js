@@ -6,6 +6,7 @@ angular.module('users', [])
     var self = this;
 
     self.url = "login.html";
+    self.errorPrompt = "";
 
     self.loginInfo = {
       username: "",
@@ -19,13 +20,13 @@ angular.module('users', [])
     };
 
     self.login = function() {
+      self.errorPrompt = "";
       usersService.login(self.loginInfo)
         .then(function(result) {
           $window.location.href="/userDirectory/view/index.html";
-          console.log("success to login");
         })
         .catch(function(error) {
-          console.error("error to login");
+          self.errorPrompt = error;
         });      
     };
 
@@ -57,13 +58,19 @@ angular.module('users', [])
               return response.data.res;
             }
             else {
-              var errorInfo = "status error when login";
+              var errorInfo = "status error when login: " + response.data.code;
               console.error(errorInfo);
               return $q.reject(errorInfo);
             }
           })
           .catch(function(error) {
-            var errorInfo = "http error when login";
+            var errorInfo = "http error when login: ";
+            if(error.data && error.data.message) {
+              errorInfo += error.data.message;
+            }
+            else {
+              errorInfo += JSON.stringify(error);
+            }
             console.error(errorInfo);
             return $q.reject(errorInfo);
           });

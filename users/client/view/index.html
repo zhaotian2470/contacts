@@ -24,6 +24,10 @@
   <body ng-app="users">
     <div class="container" ng-controller="MainCtrl as ctrl">
       <div ng-include="ctrl.url"></div>
+      <br>
+      <div class="alert alert-danger" role="alert" ng-show="ctrl.errorPrompt">
+        {{ctrl.errorPrompt}}
+      </div>
     </div>
   </body>
 </html>
