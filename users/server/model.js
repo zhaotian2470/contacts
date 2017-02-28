@@ -7,6 +7,7 @@ var UsersSchema = new Schema({
   username: {
     type: String,
     required: 'Please fill user name',
+    unique: true,
     trim: true
   },
   password: {

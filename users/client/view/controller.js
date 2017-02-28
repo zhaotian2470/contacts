@@ -31,17 +31,18 @@ angular.module('users', [])
     };
 
     self.gotoRegister = function() {
+      self.errorPrompt = "";
       self.url = "register.html";
     };
 
     self.register = function() {
+      self.errorPrompt = "";
       usersService.register(self.registerInfo)
         .then(function(result) {
           self.url = "login.html";
-          console.log("success to register");
         })
         .catch(function(error) {
-          console.error("error to register");
+          self.errorPrompt = error;
         });
     };
 
@@ -86,13 +87,19 @@ angular.module('users', [])
               return response.data.res;
             }
             else {
-              var errorInfo = "status error when register";
+              var errorInfo = "status error when register: " + response.data.code;
               console.error(errorInfo);
               return $q.reject(errorInfo);
             }
           })
           .catch(function(error) {
-            var errorInfo = "http error when register";
+            var errorInfo = "http error when register: ";
+            if(error.data && error.data.message) {
+              errorInfo += error.data.message;
+            }
+            else {
+              errorInfo += JSON.stringify(error);
+            }
             console.error(errorInfo);
             return $q.reject(errorInfo);
           });
