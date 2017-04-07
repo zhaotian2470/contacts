@@ -1,0 +1,14 @@
+{
+  "listenPort": 3000,
+
+  "viewRoot": "client",
+
+  "mainLogName": "contacts",
+  "mainLogLevel": "debug",
+  "mainLogSrc": false,
+
+  "dbConfig": {
+    "host": "localhost",
+    "dbName": "contacts"
+  }
+}

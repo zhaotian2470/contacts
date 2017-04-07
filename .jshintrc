@@ -4,7 +4,6 @@
     "mocha": true,
     "globals": {
         "_": true,
-        "angular": true
     },
     "esversion": 6
 }

@@ -16,4 +16,4 @@ node_modules/
 *.pyc
 
 # project
-public
+client/output
