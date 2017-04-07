@@ -51,10 +51,15 @@ export default class IndexMenu extends React.Component {
   };
 
   render() {
+    const style = {
+      margin: 2,
+    };
+
     return (
       <div>
         <RaisedButton
           onTouchTap={this.handleTouchTapDirectory}
+          primary={true} style={style}
           label="Directory"
         />
         <Popover
@@ -70,6 +75,7 @@ export default class IndexMenu extends React.Component {
         </Popover>
         <RaisedButton
           onTouchTap={this.handleTouchTapUser}
+          primary={true} style={style}
           label="User"
         />
         <Popover

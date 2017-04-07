@@ -9,9 +9,7 @@ export default class Profile extends React.Component {
     super(props);
     this.state = {
       _id: '',
-      errorUserName: '',
-      errorPassword: '',
-      errorEmail: ''
+      errorText: ''
     };
   };
 
@@ -23,7 +21,7 @@ export default class Profile extends React.Component {
     return (
       <form>
         <TextField type="text" name="username"
-          errorText = {this.state.errorUserName}
+          errorText = {this.state.errorText}
           ref={
             (e) => {
               this._username = e
@@ -32,7 +30,7 @@ export default class Profile extends React.Component {
         />
         <br />
         <TextField type="password" name="password"
-          errorText = {this.state.errorPassword}
+          errorText = {this.state.errorText}
           ref={
             (e) => {
               this._password = e
@@ -41,7 +39,7 @@ export default class Profile extends React.Component {
         />
         <br />
         <TextField type="text" name="email"
-          errorText = {this.state.errorEmail}
+          errorText = {this.state.errorText}
           ref={
             (e) => {
               this._email = e
@@ -70,7 +68,8 @@ export default class Profile extends React.Component {
         window.location.href="/view/login.html";
       }
       else {
-        console.error("get profile error");
+        console.error("get profile error: " + jqXhr.responseJSON.message);
+        self.setState({errorText: jqXhr.responseJSON.message});
       }
     });
   };
@@ -88,11 +87,11 @@ export default class Profile extends React.Component {
       url: '/api/profile',
       data: data
     }).done(function(data) {
-      self._username.input.value = data.res.username;
-      self._password.input.value = data.res.password;
-      self._email.input.value = data.res.email;
+      console.log("save profile success");
+      window.location.href="/view/index.html";
     }).fail(function(jqXhr) {
-      console.error("save profile error");
+      console.error("save profile error: " + jqXhr.responseJSON.message);
+      self.setState({errorText: jqXhr.responseJSON.message});
     });
   };
 
