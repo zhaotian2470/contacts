@@ -65,7 +65,13 @@ export default class Profile extends React.Component {
       self._password.input.value = data.res.password;
       self._email.input.value = data.res.email;
     }).fail(function(jqXhr) {
-      console.error("get profile error");
+      if(jqXhr.status === 403) {
+        console.log("login before get profile");
+        window.location.href="/view/login.html";
+      }
+      else {
+        console.error("get profile error");
+      }
     });
   };
   

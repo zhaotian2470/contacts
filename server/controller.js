@@ -127,6 +127,16 @@ module.exports.saveProfile = function(req, res, next) {
 };
 
 /**
+ * check user log in
+ */
+module.exports.checkUserLogin = function(req, res, next) {
+  if(!req.user) {
+    return httpUtil.sendErrorRes(res, 403, "Please login");
+  }
+  next();
+}
+
+/**
  * Create user directory
  */
 module.exports.createUserDirectory = function(req, res) {

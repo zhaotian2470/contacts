@@ -14,13 +14,7 @@ router.post('/register', controller.createUser);
 router.get('/profile', controller.getProfile);
 router.post('/profile', controller.saveProfile);
 
-router.use("/userDirectory", function(req, res, next) {
-  if(!req.user) {
-    return res.redirect('/view/login.html');
-  }
-  next();
-});
-
+router.use("/userDirectory", controller.checkUserLogin);
 router.post("/userDirectory", controller.createUserDirectory);
 router.get("/userDirectory", controller.readAllUserDirectory);
 router.get("/userDirectory/id/:id", controller.readUserDirectoryById);

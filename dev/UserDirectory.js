@@ -211,7 +211,13 @@ export default class UserDirectory extends React.Component {
     }).done(function(data) {
       self.setState({_userDirectory: data.res});
     }).fail(function(jqXhr) {
-      console.error("get user directory error");
+      if(jqXhr.status === 403) {
+        console.log("login before get user directory");
+        window.location.href="/view/login.html";
+      }
+      else {
+        console.error("get user directory error");
+      }
     });
   };
 
