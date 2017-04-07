@@ -107,6 +107,7 @@ class EditDirectory extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      errorText: '',
       _birthdayType: '阳历'
     };
   };
@@ -121,6 +122,7 @@ class EditDirectory extends React.Component {
     return (
       <form>
         <TextField type="text" name="name" defaultValue={ this.props.data ? this.props.data.name : ""}
+          errorText = {this.state.errorText}
           ref={
             (e) => {
               this._name = e
@@ -129,6 +131,7 @@ class EditDirectory extends React.Component {
         />
         <br />
         <DatePicker name="birthday" hintText="生日" defaultDate={this.props.data ? new Date(this.props.data.birthday) : new Date()}
+          errorText = {this.state.errorText}
           ref={
             (e) => {
               this._birthday = e
@@ -169,10 +172,10 @@ class EditDirectory extends React.Component {
         }
       }).done(function(data) {
         console.log("update user directory success");
+        self.props.afterSave();
       }).fail(function(jqXhr) {
         console.error("update user directory error: " + jqXhr.responseJSON.message);
-      }).always(function() {
-        self.props.afterSave();
+        self.setState({errorText: jqXhr.responseJSON.message});
       });
       return;
     }
@@ -188,10 +191,10 @@ class EditDirectory extends React.Component {
         }
       }).done(function(data) {
         console.log("add user directory success");
+        self.props.afterSave();
       }).fail(function(jqXhr) {
         console.error("add user directory error: " + jqXhr.responseJSON.message);
-      }).always(function() {
-        self.props.afterSave();
+        self.setState({errorText: jqXhr.responseJSON.message});
       });
       return;
     }
@@ -208,10 +211,10 @@ class EditDirectory extends React.Component {
         url: '/api/userDirectory/id/' + this.props.data._id
       }).done(function(data) {
         console.log("delete user directory success");
+        self.props.afterDelete();
       }).fail(function(jqXhr) {
         console.error("delete user directory error: " + jqXhr.responseJSON.message);
-      }).always(function() {
-        self.props.afterDelete();
+        self.setState({errorText: jqXhr.responseJSON.message});
       });
       return;
     }
@@ -266,4 +269,3 @@ export default class UserDirectory extends React.Component {
   }
 
 };
-
