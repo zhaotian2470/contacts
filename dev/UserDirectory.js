@@ -22,12 +22,18 @@ class ShowDirectory extends React.Component {
 
   render() {
     var tableBodyArray = [];
+    var headStyle = {
+      backgroundColor: "#CD5C5C"
+    };
+    var bodyStyle = {
+      backgroundColor: "#008000"
+    };
+
     for(var i of this.state._userDirectory) {
       tableBodyArray.push(
-          <TableRow key={i._id}>
-            <TableRowColumn>{i._id}</TableRowColumn>
+          <TableRow key={i._id} style={bodyStyle}>
             <TableRowColumn>{i.name}</TableRowColumn>
-            <TableRowColumn>{i.birthday}</TableRowColumn>
+            <TableRowColumn>{new Date(i.birthday).toISOString().split('T')[0]}</TableRowColumn>
             <TableRowColumn>{i.birthdayType}</TableRowColumn>
           </TableRow>
       );
@@ -36,8 +42,7 @@ class ShowDirectory extends React.Component {
       <div>
         <Table onRowSelection={this.selectRow.bind(this)}>
           <TableHeader>
-            <TableRow>
-              <TableHeaderColumn>ID</TableHeaderColumn>
+            <TableRow style={headStyle}>
               <TableHeaderColumn>Name</TableHeaderColumn>
               <TableHeaderColumn>Birthday</TableHeaderColumn>
               <TableHeaderColumn>Birthday Type</TableHeaderColumn>
