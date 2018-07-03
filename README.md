@@ -2,7 +2,7 @@
 manage contacts via web page
 
 # dependencies #
-* setup mongdb
+* setup mongodb
 * change config/default.json
 
 # todo #
