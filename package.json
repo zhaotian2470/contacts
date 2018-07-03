@@ -6,6 +6,7 @@
   "scripts": {
     "lint": "find . -path '*/node_modules/*' -prune -o -name '*.js' -print | xargs node_modules/jshint/bin/jshint",
     "compile": "./node_modules/.bin/webpack --optimize-minimize",
+    "pm2": "pm2 start server/index.js -i 1 --name contacts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
