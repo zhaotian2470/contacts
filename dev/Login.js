@@ -1,57 +1,56 @@
 import React from 'react';
-import FlatButton from 'material-ui/FlatButton';
-import TextField from 'material-ui/TextField';
+import Button from '@mui/material/Button';
+import TextField from '@mui/material/TextField';
 import $ from "jquery";
 
 class LoginForm extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = {errorText: ''};
-  };
+    this.state = { errorText: '' };
+  }
 
   render() {
     return (
-        <form>
-          <TextField type="text" name="username" hintText="Username"
-            errorText = {this.state.errorText}
-            ref={
-              (e) => {
-                this._username = e
-              }
-            }
-          />
-          <br />
-          <TextField type="password" name="password" hintText="Password"
-            onKeyPress={this.onKeyPress.bind(this)}
-            errorText = {this.state.errorText}
-            ref={
-              (e) => {
-                this._password = e
-              }
-            }
-          />
-          <br />
-          <FlatButton label="login" onTouchTap={this.login.bind(this)} primary={true} />
-          <FlatButton label="register" onTouchTap={this.toRegister.bind(this)} primary={true} />
-        </form>
-      );
+      <form>
+        <TextField
+          type="text"
+          name="username"
+          label="Username"
+          error={Boolean(this.state.errorText)}
+          helperText={this.state.errorText}
+          inputRef={(el) => { this._usernameInput = el; }}
+        />
+        <br />
+        <TextField
+          type="password"
+          name="password"
+          label="Password"
+          onKeyPress={this.onKeyPress.bind(this)}
+          error={Boolean(this.state.errorText)}
+          inputRef={(el) => { this._passwordInput = el; }}
+        />
+        <br />
+        <Button onClick={this.login.bind(this)} color="primary">login</Button>
+        <Button onClick={this.toRegister.bind(this)} color="primary">register</Button>
+      </form>
+    );
   }
 
   onKeyPress(e) {
-    if(e.charCode === 13) {
+    if (e.charCode === 13) {
       this.login(e);
     }
-  };
+  }
 
-  toRegister(e) {
+  toRegister() {
     this.props.toRegister();
   }
 
   login(e) {
     var data = {
-      username: this._username.input.value,
-      password: this._password.input.value
+      username: this._usernameInput.value,
+      password: this._passwordInput.value
     };
 
     var self = this;
@@ -60,69 +59,67 @@ class LoginForm extends React.Component {
       type: 'POST',
       url: '/api/login',
       data: data
-    }).done(function(data) {
-      self.setState({errorText: ""});
-      window.location.href="/view/index.html";
+    }).done(function() {
+      self.setState({ errorText: "" });
+      window.location.href = "/view/index.html";
     }).fail(function(jqXhr) {
-      self.setState({errorText: jqXhr.responseJSON.message});
+      self.setState({ errorText: jqXhr.responseJSON.message });
     });
-  };
-};
+  }
+}
 
 class RegisterForm extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = {errorText: ''};
-  };
+    this.state = { errorText: '' };
+  }
 
   render() {
-      return (
+    return (
       <form>
-        <TextField type="text" name="username" hintText="user name"
-          errorText = {this.state.errorText}
-          ref={
-            (e) => {
-              this._username = e
-            }
-          }
+        <TextField
+          type="text"
+          name="username"
+          label="User name"
+          error={Boolean(this.state.errorText)}
+          helperText={this.state.errorText}
+          inputRef={(el) => { this._usernameInput = el; }}
         />
         <br />
-        <TextField type="password" name="password" hintText="password"
-          errorText = {this.state.errorText}
-          ref={
-            (e) => {
-              this._password = e
-            }
-          }
+        <TextField
+          type="password"
+          name="password"
+          label="Password"
+          error={Boolean(this.state.errorText)}
+          inputRef={(el) => { this._passwordInput = el; }}
         />
         <br />
-        <TextField type="text" name="email" hintText="email address"
+        <TextField
+          type="text"
+          name="email"
+          label="Email address"
           onKeyPress={this.onKeyPress.bind(this)}
-          errorText = {this.state.errorText}
-          ref={
-            (e) => {
-              this._email = e
-            }
-          }
+          error={Boolean(this.state.errorText)}
+          inputRef={(el) => { this._emailInput = el; }}
         />
         <br />
-        <FlatButton label="register" onTouchTap={this.register.bind(this)} primary={true} />
+        <Button onClick={this.register.bind(this)} color="primary">register</Button>
       </form>
-      )
-  };
+    );
+  }
 
   onKeyPress(e) {
-    if(e.charCode === 13) {
-        this.register(e);
+    if (e.charCode === 13) {
+      this.register(e);
     }
-  };
+  }
 
   register(e) {
     var data = {
-      username: this._username.input.value,
-      password: this._password.input.value,
-      email: this._email.input.value
+      username: this._usernameInput.value,
+      password: this._passwordInput.value,
+      email: this._emailInput.value
     };
 
     var self = this;
@@ -131,34 +128,31 @@ class RegisterForm extends React.Component {
       type: 'POST',
       url: '/api/register',
       data: data
-    }).done(function(data) {
-      self.setState({errorText: ""});
-      window.location.href="/view/login.html";
+    }).done(function() {
+      self.setState({ errorText: "" });
+      window.location.href = "/view/login.html";
     }).fail(function(jqXhr) {
-      self.setState({errorText: jqXhr.responseJSON.message});
+      self.setState({ errorText: jqXhr.responseJSON.message });
     });
-  };
-
-};
+  }
+}
 
 export default class Login extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = {action: 'login'};
-  };
+    this.state = { action: 'login' };
+  }
 
   render() {
-    if(this.state.action === 'login') {
+    if (this.state.action === 'login') {
       return (<LoginForm toRegister={this.toRegister.bind(this)} />);
+    } else {
+      return (<RegisterForm />);
     }
-    else {
-      return (<RegisterForm />)
-    }
-  };
+  }
 
   toRegister() {
-    this.setState({action: "register"});
-  };
-
-};
+    this.setState({ action: "register" });
+  }
+}

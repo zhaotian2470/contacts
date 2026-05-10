@@ -14,7 +14,8 @@ var config = {
     filename: "[name].js"
   },
   module: {
-    loaders: [{
+    rules: [{
+      test: /\.(js|jsx)$/,
       include: DEV,
       loader: "babel-loader",
     }]

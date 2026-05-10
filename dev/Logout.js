@@ -3,24 +3,22 @@ import $ from "jquery";
 
 export default class Logout extends React.Component {
 
-  componentWillMount() {
+  componentDidMount() {
     this.logout();
-  };
+  }
 
   render() {
     return null;
-  };
+  }
 
   logout() {
-    var self = this;
     $.ajax({
       type: 'GET',
       url: '/api/logout'
-    }).done(function(data) {
-      window.location.href="/view/login.html";
-    }).fail(function(jqXhr) {
+    }).done(function() {
+      window.location.href = "/view/login.html";
+    }).fail(function() {
       console.error("logout error");
     });
-  };
-
-};
+  }
+}

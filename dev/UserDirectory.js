@@ -1,10 +1,19 @@
 import React from 'react';
-import FlatButton from 'material-ui/FlatButton';
-import TextField from 'material-ui/TextField';
-import SelectField from 'material-ui/SelectField';
-import MenuItem from 'material-ui/MenuItem';
-import DatePicker from 'material-ui/DatePicker';
-import {Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowColumn} from 'material-ui/Table';
+import Button from '@mui/material/Button';
+import TextField from '@mui/material/TextField';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import InputLabel from '@mui/material/InputLabel';
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import dayjs from 'dayjs';
 import $ from "jquery";
 
 class ShowDirectory extends React.Component {
@@ -14,50 +23,44 @@ class ShowDirectory extends React.Component {
     this.state = {
       _userDirectory: []
     };
-  };
+  }
 
   componentDidMount() {
     this.getUserDirectory();
-  };
+  }
 
   render() {
-    var tableBodyArray = [];
-    var headStyle = {
-      backgroundColor: "#CD5C5C"
-    };
-    var bodyStyle = {
-      backgroundColor: "#008000"
-    };
+    var headStyle = { backgroundColor: "#CD5C5C" };
+    var bodyStyle = { backgroundColor: "#008000" };
 
-    for(var i of this.state._userDirectory) {
-      tableBodyArray.push(
-          <TableRow key={i._id} style={bodyStyle}>
-            <TableRowColumn>{i.name}</TableRowColumn>
-            <TableRowColumn>{new Date(i.birthday).toISOString().split('T')[0]}</TableRowColumn>
-            <TableRowColumn>{i.birthdayType}</TableRowColumn>
-          </TableRow>
-      );
-    }
     return (
       <div>
-        <Table onRowSelection={this.selectRow.bind(this)}>
-          <TableHeader>
+        <Table>
+          <TableHead>
             <TableRow style={headStyle}>
-              <TableHeaderColumn>Name</TableHeaderColumn>
-              <TableHeaderColumn>Birthday</TableHeaderColumn>
-              <TableHeaderColumn>Birthday Type</TableHeaderColumn>
+              <TableCell>Name</TableCell>
+              <TableCell>Birthday</TableCell>
+              <TableCell>Birthday Type</TableCell>
             </TableRow>
-          </TableHeader>
+          </TableHead>
           <TableBody>
-            {tableBodyArray}
+            {this.state._userDirectory.map((i) => (
+              <TableRow key={i._id} style={bodyStyle} hover onClick={() => this.props.editRow(i)}>
+                <TableCell>{i.name}</TableCell>
+                <TableCell>{new Date(i.birthday).toISOString().split('T')[0]}</TableCell>
+                <TableCell>{i.birthdayType}</TableCell>
+              </TableRow>
+            ))}
           </TableBody>
         </Table>
         <br />
-        <FlatButton label="add" onTouchTap={this.addRow.bind(this)} primary={true} />
-        <FlatButton label="send birthday remainder immediately" onTouchTap={this.sendBirthdayRemainder.bind(this)} primary={true} />
+        <Button onClick={this.props.addRow} color="primary">add</Button>
+        <Button onClick={this.sendBirthdayRemainder.bind(this)} color="primary">
+          send birthday remainder immediately
+        </Button>
       </div>
     );
-  };
+  }
 
   getUserDirectory() {
     var self = this;
@@ -65,47 +68,27 @@ class ShowDirectory extends React.Component {
       type: 'GET',
       url: '/api/userDirectory'
     }).done(function(data) {
-      self.setState({_userDirectory: data.res});
+      self.setState({ _userDirectory: data.res });
     }).fail(function(jqXhr) {
-      if(jqXhr.status === 403) {
-        console.log("login before get user directory");
-        window.location.href="/view/login.html";
-      }
-      else {
+      if (jqXhr.status === 403) {
+        window.location.href = "/view/login.html";
+      } else {
         console.error("get user directory error: " + jqXhr.responseJSON.message);
       }
     });
-  };
-
-  selectRow(rows) {
-    var r = -1;
-    if(Array.isArray(rows) && rows.length > 0) {
-      r = rows[0];
-    }
-    else if(rows === "all") {
-      r = 0;
-    }
-
-    if( r >= 0 ) {
-      this.props.editRow(this.state._userDirectory[r]);
-    }
-  };
-
-  addRow() {
-    this.props.addRow();
   }
 
   sendBirthdayRemainder() {
     $.ajax({
       type: 'POST',
       url: '/api/userDirectory/sendBirthdayRemainder'
-    }).done(function(data) {
+    }).done(function() {
       console.log("send birthday remainder success");
     }).fail(function(jqXhr) {
       console.error("send birthday remainder error: " + jqXhr.responseJSON.message);
     });
   }
-};
+}
 
 class EditDirectory extends React.Component {
 
@@ -113,124 +96,118 @@ class EditDirectory extends React.Component {
     super(props);
     this.state = {
       errorText: '',
-      _birthdayType: '阳历'
+      _birthdayType: props.data && props.data.birthdayType ? props.data.birthdayType : '阳历',
+      _birthday: props.data ? dayjs(props.data.birthday) : dayjs(),
     };
-  };
-
-  componentWillMount() {
-    if(this.props.data && this.props.data.birthdayType) {
-      this.setState({_birthdayType: this.props.data.birthdayType});
-    }
-  };
+  }
 
   render() {
     return (
-      <form>
-        <TextField type="text" name="name" defaultValue={ this.props.data ? this.props.data.name : ""}
-          errorText = {this.state.errorText}
-          ref={
-            (e) => {
-              this._name = e
-            }
-          }
-        />
-        <br />
-        <DatePicker name="birthday" hintText="生日" defaultDate={this.props.data ? new Date(this.props.data.birthday) : new Date()}
-          errorText = {this.state.errorText}
-          ref={
-            (e) => {
-              this._birthday = e
-            }
-          }
-        />
-        <br />
-        <SelectField name="birthdayType" value={this.state._birthdayType} onChange={this.handleBirthdayType.bind(this)} >
-          <MenuItem value={"阳历"} primaryText="阳历" />
-          <MenuItem value={"阴历"} primaryText="阴历" />
-        </SelectField>
-        <br />
-        <FlatButton label="save" onTouchTap={this.saveRow.bind(this)} primary={true} />
-        <FlatButton label="delete" onTouchTap={this.deleteRow.bind(this)} primary={true} />
+      <LocalizationProvider dateAdapter={AdapterDayjs}>
+        <form>
+          <TextField
+            type="text"
+            name="name"
+            label="Name"
+            defaultValue={this.props.data ? this.props.data.name : ""}
+            error={Boolean(this.state.errorText)}
+            helperText={this.state.errorText}
+            inputRef={(el) => { this._nameInput = el; }}
+          />
+          <br />
+          <DatePicker
+            label="生日"
+            value={this.state._birthday}
+            onChange={(newValue) => this.setState({ _birthday: newValue })}
+            slotProps={{ textField: { error: Boolean(this.state.errorText) } }}
+          />
+          <br />
+          <FormControl>
+            <InputLabel>Birthday Type</InputLabel>
+            <Select
+              name="birthdayType"
+              value={this.state._birthdayType}
+              label="Birthday Type"
+              onChange={this.handleBirthdayType.bind(this)}
+            >
+              <MenuItem value={"阳历"}>阳历</MenuItem>
+              <MenuItem value={"阴历"}>阴历</MenuItem>
+            </Select>
+          </FormControl>
+          <br />
+          <Button onClick={this.saveRow.bind(this)} color="primary">save</Button>
+          <Button onClick={this.deleteRow.bind(this)} color="primary">delete</Button>
         </form>
+      </LocalizationProvider>
     );
-  };
+  }
 
-  handleBirthdayType(event, index, value) {
-    this.setState({_birthdayType: value});
+  handleBirthdayType(event) {
+    this.setState({ _birthdayType: event.target.value });
   }
 
   saveRow() {
     var self = this;
-    var birthdayDate = self._birthday.getDate()
-    var utcDate = new Date(Date.UTC(birthdayDate.getFullYear(),
-                                    birthdayDate.getMonth(),
-                                    birthdayDate.getDate()));
+    var birthdayDate = self.state._birthday.toDate();
+    var utcDate = new Date(Date.UTC(
+      birthdayDate.getFullYear(),
+      birthdayDate.getMonth(),
+      birthdayDate.getDate()
+    ));
 
-    if(this.props.data) {
+    if (this.props.data) {
       $.ajax({
         type: 'PUT',
         url: '/api/userDirectory/id/' + this.props.data._id,
         data: {
-          name: self._name.input.value,
+          name: self._nameInput.value,
           birthday: utcDate,
           birthdayType: self.state._birthdayType
         }
-      }).done(function(data) {
-        console.log("update user directory success");
+      }).done(function() {
         self.props.afterSave();
       }).fail(function(jqXhr) {
         console.error("update user directory error: " + jqXhr.responseJSON.message);
-        self.setState({errorText: jqXhr.responseJSON.message});
+        self.setState({ errorText: jqXhr.responseJSON.message });
       });
       return;
     }
 
-    if(!this.props.data) {
-      $.ajax({
-        type: 'POST',
-        url: '/api/userDirectory',
-        data: {
-          name: self._name.input.value,
-          birthday: utcDate,
-          birthdayType: self.state._birthdayType
-        }
-      }).done(function(data) {
-        console.log("add user directory success");
-        self.props.afterSave();
-      }).fail(function(jqXhr) {
-        console.error("add user directory error: " + jqXhr.responseJSON.message);
-        self.setState({errorText: jqXhr.responseJSON.message});
-      });
-      return;
-    }
-
-
-  };
+    $.ajax({
+      type: 'POST',
+      url: '/api/userDirectory',
+      data: {
+        name: self._nameInput.value,
+        birthday: utcDate,
+        birthdayType: self.state._birthdayType
+      }
+    }).done(function() {
+      self.props.afterSave();
+    }).fail(function(jqXhr) {
+      console.error("add user directory error: " + jqXhr.responseJSON.message);
+      self.setState({ errorText: jqXhr.responseJSON.message });
+    });
+  }
 
   deleteRow() {
     var self = this;
 
-    if(this.props.data) {
+    if (this.props.data) {
       $.ajax({
         type: 'DELETE',
         url: '/api/userDirectory/id/' + this.props.data._id
-      }).done(function(data) {
-        console.log("delete user directory success");
+      }).done(function() {
         self.props.afterDelete();
       }).fail(function(jqXhr) {
         console.error("delete user directory error: " + jqXhr.responseJSON.message);
-        self.setState({errorText: jqXhr.responseJSON.message});
+        self.setState({ errorText: jqXhr.responseJSON.message });
       });
       return;
     }
 
-    if(!this.props.data) {
-      self.props.afterDelete();
-      return;
-    }
-  };
-
-};
+    self.props.afterDelete();
+  }
+}
 
 export default class UserDirectory extends React.Component {
 
@@ -240,37 +217,39 @@ export default class UserDirectory extends React.Component {
       _action: "show",
       _item: null
     };
-  };
+  }
 
   render() {
-
-    if(this.state._action === "show") {
+    if (this.state._action === "show") {
       return (
-          <ShowDirectory editRow={this.editRow.bind(this)} addRow={this.addRow.bind(this)} />
+        <ShowDirectory editRow={this.editRow.bind(this)} addRow={this.addRow.bind(this)} />
       );
     }
 
-    if(this.state._action === "edit") {
+    if (this.state._action === "edit") {
       return (
-          <EditDirectory afterSave={this.afterSave.bind(this)} afterDelete={this.afterDelete.bind(this)} data={this.state._item} />
+        <EditDirectory
+          afterSave={this.afterSave.bind(this)}
+          afterDelete={this.afterDelete.bind(this)}
+          data={this.state._item}
+        />
       );
     }
-  };
+  }
 
   editRow(item) {
-    this.setState({_action: "edit", _item: item});
+    this.setState({ _action: "edit", _item: item });
   }
 
   addRow() {
-    this.setState({_action: "edit", _item: null});
+    this.setState({ _action: "edit", _item: null });
   }
 
   afterSave() {
-    this.setState({_action: "show", _item: null});
+    this.setState({ _action: "show", _item: null });
   }
 
   afterDelete() {
-    this.setState({_action: "show", _item: null});
+    this.setState({ _action: "show", _item: null });
   }
-
-};
+}

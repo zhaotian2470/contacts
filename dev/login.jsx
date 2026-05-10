@@ -1,15 +1,15 @@
 import React from 'react';
-import injectTapEventPlugin from 'react-tap-event-plugin';
-import ReactDOM from 'react-dom';
-import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
+import ReactDOM from 'react-dom/client';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
 import Login from './Login';
 
-injectTapEventPlugin();
+const theme = createTheme();
 
 const App = () => (
-    <MuiThemeProvider>
-      <Login />
-    </MuiThemeProvider>
+  <ThemeProvider theme={theme}>
+    <Login />
+  </ThemeProvider>
 );
 
-ReactDOM.render(<App />, document.querySelector("#container"));
+const root = ReactDOM.createRoot(document.querySelector("#container"));
+root.render(<App />);

@@ -17,22 +17,19 @@ var OperationQueue = mongoose.model("OperationQueue");
 
 // set passport
 passport.use(new localStrategy(
-  function(username, password, done) {
-    Users.findOne({username: username}, function(err, user) {
-      if (err) {
-        return done(err);
-      }
-
+  async function(username, password, done) {
+    try {
+      const user = await Users.findOne({username: username});
       if (!user) {
         return done(null, false, { message: 'Incorrect username.' });
       }
-
       if (user.password !== password) {
         return done(null, false, { message: 'Incorrect password.' });
       }
-
       return done(null, user);
-    });
+    } catch (err) {
+      return done(err);
+    }
   }
 ));
 
@@ -40,10 +37,13 @@ passport.serializeUser(function(user, done) {
   done(null, user._id);
 });
 
-passport.deserializeUser(function(id, done) {
-  Users.findById(id, function(error, user) {
-    done(error, user);
-  });
+passport.deserializeUser(async function(id, done) {
+  try {
+    const user = await Users.findById(id);
+    done(null, user);
+  } catch (error) {
+    done(error);
+  }
 });
 
 module.exports.passport = passport;
@@ -52,7 +52,7 @@ module.exports.passport = passport;
  * login
  */
 module.exports.login = function(req, res, next) {
-  
+
   passport.authenticate('local', function(error, user, info) {
 
     if (error) {
@@ -78,24 +78,26 @@ module.exports.login = function(req, res, next) {
  */
 module.exports.logout = function(req, res, next) {
 
-  req.logout();
-  return httpUtil.sendJsonRes(res, 200, "success", "logout");
+  req.logout(function(err) {
+    if (err) {
+      return httpUtil.sendErrorRes(res, 400, err.toString());
+    }
+    return httpUtil.sendJsonRes(res, 200, "success", "logout");
+  });
 
 };
 
 /**
  * Create user
  */
-module.exports.createUser = function(req, res) {
-  var users = new Users(req.body);
-  users.save(function(error) {
-    if (error) {
-      return httpUtil.sendErrorRes(res, 400, error.toString());
-    }
-    else {
-      return httpUtil.sendJsonRes(res, 200, "success", users);
-    }
-  });
+module.exports.createUser = async function(req, res) {
+  try {
+    const users = new Users(req.body);
+    await users.save();
+    return httpUtil.sendJsonRes(res, 200, "success", users);
+  } catch (error) {
+    return httpUtil.sendErrorRes(res, 400, error.toString());
+  }
 };
 
 /**
@@ -114,16 +116,13 @@ module.exports.getProfile = function(req, res, next) {
 /**
  * save profile
  */
-module.exports.saveProfile = function(req, res, next) {
-
-  Users.update({"_id": req.body._id}, req.body, {"runValidators": true}, function(error, numAffected) {
-    if (error) {
-      return httpUtil.sendErrorRes(res, 400, error.toString());
-    }
-    else {
-      return httpUtil.sendJsonRes(res, 200, "success", req.body);
-    }
-  });
+module.exports.saveProfile = async function(req, res, next) {
+  try {
+    await Users.updateOne({"_id": req.body._id}, req.body, {"runValidators": true});
+    return httpUtil.sendJsonRes(res, 200, "success", req.body);
+  } catch (error) {
+    return httpUtil.sendErrorRes(res, 400, error.toString());
+  }
 };
 
 /**
@@ -139,30 +138,28 @@ module.exports.checkUserLogin = function(req, res, next) {
 /**
  * Create user directory
  */
-module.exports.createUserDirectory = function(req, res) {
-  var record = _.cloneDeep(req.body);
-  _.assign(record, {"ownerId": req.user._id});
-  var userDirectory = new UserDirectory(record);
-  userDirectory.save(function(error) {
-    if (error) {
-      httpUtil.sendErrorRes(res, 400, error.toString());
-    } else {
-      httpUtil.sendJsonRes(res, 200, "success", userDirectory);
-    }
-  });
+module.exports.createUserDirectory = async function(req, res) {
+  try {
+    var record = _.cloneDeep(req.body);
+    _.assign(record, {"ownerId": req.user._id});
+    const userDirectory = new UserDirectory(record);
+    await userDirectory.save();
+    httpUtil.sendJsonRes(res, 200, "success", userDirectory);
+  } catch (error) {
+    httpUtil.sendErrorRes(res, 400, error.toString());
+  }
 };
 
 /**
  * Read all user directory
  */
-module.exports.readAllUserDirectory = function(req, res) {
-  UserDirectory.find({"ownerId": req.user._id}, "_id name birthday birthdayType", function(error, items) {
-    if (error) {
-      httpUtil.sendErrorRes(res, 400, error.toString());
-    } else {
-      httpUtil.sendJsonRes(res, 200, "success", items);
-    }
-  });
+module.exports.readAllUserDirectory = async function(req, res) {
+  try {
+    const items = await UserDirectory.find({"ownerId": req.user._id}, "_id name birthday birthdayType");
+    httpUtil.sendJsonRes(res, 200, "success", items);
+  } catch (error) {
+    httpUtil.sendErrorRes(res, 400, error.toString());
+  }
 };
 
 /**
@@ -175,63 +172,62 @@ module.exports.readUserDirectoryById = function(req, res) {
 /**
  * Update user directory
  */
-module.exports.updateUserDirectory = function(req, res) {
-  _.assignIn(req.userDirectory, req.body);
-  req.userDirectory.save(function(error) {
-    if (error) {
-      httpUtil.sendErrorRes(res, 400, error.toString());
-    } else {
-      httpUtil.sendJsonRes(res, 200, "success", req.userDirectory);
-    }
-  });
+module.exports.updateUserDirectory = async function(req, res) {
+  try {
+    _.assignIn(req.userDirectory, req.body);
+    await req.userDirectory.save();
+    httpUtil.sendJsonRes(res, 200, "success", req.userDirectory);
+  } catch (error) {
+    httpUtil.sendErrorRes(res, 400, error.toString());
+  }
 };
 
 /**
  * Delete user directory
  */
-module.exports.deleteUserDirectory = function(req, res) {
-  var userDirectory = req.userDirectory;
-  userDirectory.remove(function(error) {
-    if (error) {
-      httpUtil.sendErrorRes(res, 400, error.toString());
-    } else {
-      httpUtil.sendJsonRes(res, 200, "success", userDirectory);
-    }
-  });
+module.exports.deleteUserDirectory = async function(req, res) {
+  try {
+    const userDirectory = req.userDirectory;
+    await userDirectory.deleteOne();
+    httpUtil.sendJsonRes(res, 200, "success", userDirectory);
+  } catch (error) {
+    httpUtil.sendErrorRes(res, 400, error.toString());
+  }
 };
 
 /**
  * pending birthday remainder to db, another program will send birthday remainder
  */
-module.exports.sendBirthdayRemainder = function(req, res) {
-  var operationQueue = new OperationQueue({"name": "birthdayRemainder", "parameters": [req.user._id.toString()]});
-  operationQueue.save(function(error) {
-    if (error) {
-      httpUtil.sendErrorRes(res, 400, error.toString());
-    } else {
-      httpUtil.sendJsonRes(res, 200, "success", operationQueue);
-    }
-  });
+module.exports.sendBirthdayRemainder = async function(req, res) {
+  try {
+    const operationQueue = new OperationQueue({"name": "birthdayRemainder", "parameters": [req.user._id.toString()]});
+    await operationQueue.save();
+    httpUtil.sendJsonRes(res, 200, "success", operationQueue);
+  } catch (error) {
+    httpUtil.sendErrorRes(res, 400, error.toString());
+  }
 };
 
 /**
  * user directory middleware: get user directory by id
  */
-module.exports.userDirectoryByID = function(req, res, next, id) {
+module.exports.userDirectoryByID = async function(req, res, next, id) {
 
   if (!mongoose.Types.ObjectId.isValid(id)) {
     return httpUtil.sendErrorRes(res, 400, "user directory's id is invalid");
   }
 
-  UserDirectory.findById(id).exec(function (error, userDirectory) {
-    if (error) {
-      return httpUtil.sendErrorRes(res, 400, util.format("find user directory by id (%s) error: %s", id, error));
-    } else if (!userDirectory) {
+  try {
+    const userDirectory = await UserDirectory.findById(id);
+    if (!userDirectory) {
       return httpUtil.sendErrorRes(res, 404, util.format("No user directory with id: %s", id));
-    } else if(userDirectory.ownerId.toString() !== req.user._id.toString()) {
+    }
+    if (userDirectory.ownerId.toString() !== req.user._id.toString()) {
       return httpUtil.sendErrorRes(res, 404, util.format("No user directory with id %s and owner id %s", id, req.user._id));
     }
     req.userDirectory = userDirectory;
     next();
-  });
+  } catch (error) {
+    return httpUtil.sendErrorRes(res, 400, util.format("find user directory by id (%s) error: %s", id, error));
+  }
 };

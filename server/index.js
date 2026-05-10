@@ -8,7 +8,7 @@ const express = require('express'),
       cookieParser = require('cookie-parser'),
       bodyParser = require('body-parser'),
       expressSession = require('express-session'),
-      mongoStore = require('connect-mongo')(expressSession),
+      MongoStore = require('connect-mongo'),
       passport = require('passport'),
       flash = require('connect-flash'),
       morgan = require('morgan'),
@@ -32,7 +32,12 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
   extended: true
 }));
-app.use(expressSession({secret: 'tian', resave: true, saveUninitialized: false, store: new mongoStore({url: mongoUrl})}));
+app.use(expressSession({
+  secret: 'tian',
+  resave: true,
+  saveUninitialized: false,
+  store: MongoStore.create({ mongoUrl })
+}));
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(flash());
@@ -55,13 +60,10 @@ app.use("/api", serverRoutes);
 var listenPort = globals.config.get("listenPort");
 var logger = globals.logger;
 
-mongoose.connect(mongoUrl, function(mongoError) {
-  if(mongoError) {
-    logger.error("failed to connect to %s: %j", mongoUrl, mongoError);
-    return;
-  }
-
-  app.listen(listenPort, function(listenError) {
+mongoose.connect(mongoUrl).then(function() {
+  app.listen(listenPort, function() {
     logger.info('app is listening on port %s!', listenPort);
   });
+}).catch(function(mongoError) {
+  logger.error("failed to connect to %s: %j", mongoUrl, mongoError);
 });
